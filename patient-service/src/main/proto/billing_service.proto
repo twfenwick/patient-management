@@ -1,0 +1,25 @@
+// Typically this file is in a central location for all services, but here we copy for simplicity.
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "billing";
+
+// Maven dependencies can be used to generate our server as well as objects for the request/response to use in our code.
+// But file doesn't run, need to generate stubs with maven commands.
+service BillingService {
+  rpc CreateBillingAccount (BillingRequest) returns (BillingResponse);
+}
+
+// Kinda like a DTO:
+message BillingRequest {
+  // Syntax kinda strange, not assigned to patientId, but used for serialization/deserialization. Needs to be unique:
+  string patientId = 1;
+  string name = 2;
+  string email = 3;
+}
+
+message BillingResponse {
+  string accountId = 1;
+  string status = 2;
+}

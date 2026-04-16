@@ -1,0 +1,61 @@
+server:
+  port: 4004
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            ## http://localhost:4004/auth/login
+            ## API GATEWAY --> http://auth-service:4005/login
+            - id: auth-service-route
+              ## Configs like uri will be different for different envs. Thus, different config files will be needed.
+              ## Ideally use something like config templator to generate these config files for different envs.
+              uri: http://auth-service:4005
+              predicates:
+                - Path=/auth/** # matches any request starting with this path
+              filters:
+                - StripPrefix=1 # Remove the "/auth" prefix before forwarding the request to the auth service
+            # API gateway will use these rules to route requests to the appropriate microservices based on the URL path
+            - id: patient-service-route
+              uri: http://patient-service:4000
+              predicates:
+                - Path=/api/patients # api-gateway matches any req starting with this path. Camel case for "Path", etc.
+              filters:
+                - StripPrefix=1 # Remove the "/api" prefix before forwarding the request to the patient-service
+                - JwtValidation
+                ## Spring convention:
+                ## What happens here is Spring will look for this prefix on a class ending with GatewayFilterFactory.
+                ## That way we can apply this filter only to the patient-service requests and not block the auth requests.
+
+              ## REST CLIENT --> http://localhost:4004/api/patients
+              ## api gateway determines that "/api/patients" matches the predicate, so this set of rules will be applied.
+              ##
+              ## Then api-gateway will rewrite the request in such a way that it can call the internal address of the
+              ## patient-service in such a way that it can call the internal address of the patient-service in a way that
+              ## the patient-service microservice expects.
+              ##
+              ## API GATEWAY (takes REST CLIENT request: http://localhost:4004/api/patients)
+              ##    --> http://patient-service:4000/patients
+              ##        i.e. http://{uri}:{filtered path}
+              ##
+              ## Then patient service app receives the request and handles the mapping to the appropriate controller method,
+              ## which returns the patients array as a response to the API gateway, which then forwards it back to the REST client.
+              ##
+              ## PATIENT SERVICE (SPRING BOOT APP) --> /patients --> Patients Array
+              ##
+            - id: api-docs-patient-route
+              uri: http://patient-service:4000
+              predicates:
+                - Path=/api-docs/patients
+              filters:
+                - RewritePath=/api-docs/patients,/v3/api-docs # replaces the path with text after the comma
+              ## REST CLIENT --> http://localhost:4004/api-docs/patients
+              ## API GATEWAY (takes REST CLIENT request: http://localhost:4004/api-docs/patients)
+              ##    --> http://patient-service:4000/v3/api-docs
+            - id: api-docs-auth-route
+              uri: http://auth-service:4005
+              predicates:
+                - Path=/api-docs/auth
+              filters:
+                - RewritePath=/api-docs/auth,/v3/api-docs # replaces the path with text after the comma

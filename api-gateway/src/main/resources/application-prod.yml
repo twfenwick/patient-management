@@ -1,0 +1,41 @@
+## "-prod" suffix indicates prode config. If we provide a SPRING_PROFILES_ACTIVE env variable, Spring will pick the
+## appropriate config file based on the suffix. If DEFAULT env variable is provided, it'll default to application.yml.
+## Could call it "-localstack" and save prod for actual production environment.
+##
+## Remember to rebuild the API gateway Docker image after adding new env files or making changes to this file.
+##
+server:
+  port: 4004
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: auth-service-route
+              ## Configs like uri will be different for different envs. Thus, different config files will be needed.
+              ## Ideally use something like config templator to generate these config files for different envs.
+              uri: http://host.docker.internal:4005
+              predicates:
+                - Path=/auth/** # matches any request starting with this path
+              filters:
+                - StripPrefix=1 # Remove the "/auth" prefix before forwarding the request to the auth service
+            - id: patient-service-route
+              uri: http://host.docker.internal:4000
+              predicates:
+                - Path=/api/patients # api-gateway matches any req starting with this path. Camel case for "Path", etc.
+              filters:
+                - StripPrefix=1 # Remove the "/api" prefix before forwarding the request to the patient-service
+                - JwtValidation
+            - id: api-docs-patient-route
+              uri: http://host.docker.internal:4000
+              predicates:
+                - Path=/api-docs/patients
+              filters:
+                - RewritePath=/api-docs/patients,/v3/api-docs # replaces the path with text after the comma
+            - id: api-docs-auth-route
+              uri: http://host.docker.internal:4005
+              predicates:
+                - Path=/api-docs/auth
+              filters:
+                - RewritePath=/api-docs/auth,/v3/api-docs # replaces the path with text after the comma
