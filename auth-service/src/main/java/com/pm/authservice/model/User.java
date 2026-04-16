@@ -1,9 +1,7 @@
 package com.pm.authservice.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.Getter;
-import lombok.Lombok;
 import lombok.Setter;
 
 import java.util.UUID;

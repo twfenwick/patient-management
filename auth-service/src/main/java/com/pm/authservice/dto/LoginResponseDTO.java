@@ -1,6 +1,5 @@
 package com.pm.authservice.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
