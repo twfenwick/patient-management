@@ -47,6 +47,7 @@ public class LocalStack extends Stack {
                 "auth-service",
                 List.of(4005),
                 authServiceDb,
+                // Randomly generated jwt secret for testing; wouldn't actually be included here in a real prod system
                 Map.of("JWT_SECRET", "vzmZayyZrQ17gCNTOPB2pikyT0Z0qnnLJnwUVRRAfevl"));
 
         authService.getNode().addDependency(authDbHealthCheck);
