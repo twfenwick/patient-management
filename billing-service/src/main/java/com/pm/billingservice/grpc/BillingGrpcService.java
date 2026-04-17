@@ -25,7 +25,7 @@ public class BillingGrpcService extends BillingServiceImplBase {
                 .build();
         responseObserver.onNext(response);
         // Can send many responses before deciding on completing the request.
-        // Quite powerful compare to rest requests which can only send one response per request.
+        // Quite powerful compared to rest requests which can only send one response per request.
         responseObserver.onCompleted();
     }
 }
