@@ -1,6 +1,8 @@
+## Summary
+
 This repo consists of microservices and automated infrastructure deployment for experimentation, learning, refresh, etc.
 It was coded from scratch using Java, Spring Boot, postgresql, Kafka, and AWS according to this [course](https://www.youtube.com/watch?v=tseqdcFfTUY) 
-over the period of about a week (shout out to @chrisblakely01 for this very detailed and comprehensive guide). The code contains helpful notes and comments along the way and required additional debugging and research to get it fully functional as some libraries, services, and tools were outdated, but overall very helpful for an api dev refresher and learning some details that maybe you hadn't considered before.
+over the period of about a week (shout out to @chrisblakely01 for the very detailed, comprehensive, and well-presented course). My code here contains helpful notes and comments along the way, as some additional debugging and research was required to get it fully functional. Some libraries, services, and tools were outdated, but overall very helpful for an api dev refresher and learning some details that maybe you hadn't considered before.
 
 ## Project Structure
 
