@@ -78,7 +78,7 @@ module "auth_service" {
     vpc_id = module.vpc.vpc_id
     depends_on = [module.auth_service_db]
     environment_vars   = {
-        SPRING_KAFKA_BOOTSTRAP_SERVERS = "b-1.kafkacluster.ilrmwg.c10.kafka.us-east-1.amazonaws.com:9094,b-2.kafkacluster.ilrmwg.c10.kafka.us-east-1.amazonaws.com:9094"
+        SPRING_KAFKA_BOOTSTRAP_SERVERS = "<bootstrap-servers-placeholder>"
         JWT_SECRET                     = "vzmZayyZrQ17gCNTOPB2pikyT0Z0qnnLJnwUVRRAfevl"
         SPRING_DATASOURCE_URL          = "jdbc:postgresql://${module.auth_service_db.address}:${module.auth_service_db.port}/authservicedb"
         SPRING_DATASOURCE_USERNAME     = "admin_user"
@@ -100,7 +100,7 @@ module "billing_service" {
     execution_role_arn = aws_iam_role.ecs_execution.arn
     vpc_id = module.vpc.vpc_id
     environment_vars   = {
-        SPRING_KAFKA_BOOTSTRAP_SERVERS = "..."
+        SPRING_KAFKA_BOOTSTRAP_SERVERS = "<bootstrap-servers-placeholder>"
     }
 }
 
@@ -116,7 +116,7 @@ module "analytics_service" {
     vpc_id = module.vpc.vpc_id
     depends_on = [module.kafka]
     environment_vars   = {
-        SPRING_KAFKA_BOOTSTRAP_SERVERS = "..."
+        SPRING_KAFKA_BOOTSTRAP_SERVERS = "<bootstrap-servers-placeholder>"
     }
 }
 
@@ -130,9 +130,9 @@ module "patient_service" {
     namespace_id       = aws_service_discovery_private_dns_namespace.patient_management.id
     execution_role_arn = aws_iam_role.ecs_execution.arn
     vpc_id = module.vpc.vpc_id
-    depends_on = [module.billing_service, module.kafka]
+    depends_on = [module.billing_service, module.kafka, module.patient_service_db]
     environment_vars   = {
-        SPRING_KAFKA_BOOTSTRAP_SERVERS = "..."
+        SPRING_KAFKA_BOOTSTRAP_SERVERS = "<bootstrap-servers-placeholder>"
         BILLING_SERVICE_ADDRESS        = "billing-service.patient-management.local"
         BILLING_SERVICE_GRPC_PORT      = "9001"
         SPRING_DATASOURCE_URL          = "jdbc:postgresql://${module.patient_service_db.address}:${module.patient_service_db.port}/patientservicedb"
@@ -191,8 +191,8 @@ resource "aws_ecr_repository" "services" {
 }
 #
 # 2. After terraform apply, push images (see tag_push_docker_images.sh)
-#    Note: be safe with shell vars and use ${} and double quotes
-#          Also, rather than push from local, endgame is CI/CD pipeline to build/push to ECR
+# Note: be safe with shell vars and use ${} and double quotes
+# Also, rather than push from local, endgame is CI/CD pipeline to build/push to ECR
 #
 # 3. Update image references in modules/fargate/main.tf
 # > image = "${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.image_name}:latest"

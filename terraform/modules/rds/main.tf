@@ -1,20 +1,20 @@
 resource "aws_security_group" "rds" {
   name   = "${var.db_name}-rds-sg"
-  vpc_id = var.vpc_id  # you'll need to add this as a variable
+  vpc_id = var.vpc_id
+}
 
-  ingress {
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "rds" {
+  security_group_id = aws_security_group.rds.id
+  from_port         = 5432
+  to_port           = 5432
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "10.0.0.0/16"
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_egress_rule" "rds" {
+  security_group_id = aws_security_group.rds.id
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 resource "aws_db_subnet_group" "this" {
@@ -32,8 +32,7 @@ resource "aws_db_instance" "this" {
   password = "password" # Need to put this into env var or vault
   db_subnet_group_name = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.rds.id]
-  skip_final_snapshot = false
-  final_snapshot_identifier = "${var.db_name}-final-snapshot"
+  skip_final_snapshot = true
 }
 
 output "address" {

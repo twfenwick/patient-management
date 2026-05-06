@@ -20,16 +20,11 @@ resource "aws_vpc_security_group_ingress_rule" "service" {
   cidr_ipv4         = "10.0.0.0/16"
 }
 
-# |  auth-service-sg      |  sg-08add7ef8cd469645  | sgr-0f8992070c00cb6e6  |  4005
-# |  billing-service-sg   |  sg-00c96db7efcf2a096  | sgr-084b68e2519a1bf30  |  9001 | sgr-0f11500fb44ba7bf0  |  4001
-# |  analytics-service-sg |  sg-0f599ed143e7019be  | sgr-06467658a3e5458c1  |  4002
-# |  patient-service-sg   |  sg-010ac9e823e4f1742  | sgr-0cf665afa0726b78d  |  4000
-
-# resource "aws_vpc_security_group_egress_rule" "service" {
-#   security_group_id = aws_security_group.service.id
-#   ip_protocol       = "-1"
-#   cidr_ipv4         = "0.0.0.0/0"
-# }
+resource "aws_vpc_security_group_egress_rule" "service" {
+  security_group_id = aws_security_group.service.id
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
+}
 
 resource "aws_cloudwatch_log_group" "this" {
   name              = "/ecs/${var.service_name}"
@@ -40,8 +35,8 @@ resource "aws_ecs_task_definition" "this" {
   family                   = var.service_name
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 256 # Consider making a variable and increase for startup time
+  memory                   = 512 # Consider making a variable and increase for startup time
   execution_role_arn       = var.execution_role_arn
 
   container_definitions = jsonencode([{
@@ -62,7 +57,7 @@ resource "aws_ecs_task_definition" "this" {
       logDriver = "awslogs"
       options = {
         "awslogs-group"         = "/ecs/${var.service_name}"
-        "awslogs-region"        = "us-east-1"
+        "awslogs-region"        = "us-east-1" # Consider making a variable.
         "awslogs-stream-prefix" = var.service_name
       }
     }

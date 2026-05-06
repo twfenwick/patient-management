@@ -3,39 +3,25 @@ data "aws_caller_identity" "current" {}
 resource "aws_security_group" "alb" {
   name   = "api-gateway-alb-sg"
   vpc_id = var.vpc_id
+}
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_ingress_rule" "alb" {
+  security_group_id = aws_security_group.alb.id
+  from_port         = 80
+  to_port           = 80
+  ip_protocol       = "tcp"
+  cidr_ipv4         = "0.0.0.0/0"
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_vpc_security_group_egress_rule" "alb" {
+  security_group_id = aws_security_group.alb.id
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
 }
 
 resource "aws_security_group" "service" {
   name   = "api-gateway-service-sg"
   vpc_id = var.vpc_id
-
-  # ingress {
-  #   from_port       = 4004
-  #   to_port         = 4004
-  #   protocol        = "tcp"
-  #   security_groups = [aws_security_group.alb.id]
-  # }
-
-  # egress {
-  #   from_port   = 0
-  #   to_port     = 0
-  #   protocol    = "-1"
-  #   cidr_blocks = ["0.0.0.0/0"]
-  # }
 }
 
 resource "aws_vpc_security_group_ingress_rule" "service" {
@@ -45,14 +31,12 @@ resource "aws_vpc_security_group_ingress_rule" "service" {
   ip_protocol       = "tcp"
   referenced_security_group_id = aws_security_group.alb.id
 }
-#
-# resource "aws_vpc_security_group_egress_rule" "service" {
-#   security_group_id = aws_security_group.service.id
-#   ip_protocol       = "-1"
-#   cidr_ipv4         = "0.0.0.0/0"
-# }
 
-# |  api-gateway-service-sg |  sg-04deff197524e5cc6  |  sgr-056b0037b44befbeb  |  4004 |
+resource "aws_vpc_security_group_egress_rule" "service" {
+  security_group_id = aws_security_group.service.id
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
+}
 
 resource "aws_lb" "this" {
   name               = "api-gateway-lb"
@@ -97,8 +81,8 @@ resource "aws_ecs_task_definition" "this" {
   family                   = "api-gateway"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 256 # Consider making a variable.
+  memory                   = 512 # Consider making a variable.
   execution_role_arn       = var.execution_role_arn
 
   container_definitions = jsonencode([{
@@ -119,7 +103,7 @@ resource "aws_ecs_task_definition" "this" {
       logDriver = "awslogs"
       options = {
         "awslogs-group"         = "/ecs/api-gateway"
-        "awslogs-region"        = "us-east-1"
+        "awslogs-region"        = "us-east-1" # Consider making a variable.
         "awslogs-stream-prefix" = "api-gateway"
       }
     }
