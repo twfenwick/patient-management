@@ -18,21 +18,21 @@ resource "aws_vpc_security_group_egress_rule" "rds" {
 }
 
 resource "aws_db_subnet_group" "this" {
-  name = "${var.db_name}-subnet-group"
+  name       = "${var.db_name}-subnet-group"
   subnet_ids = var.private_subnets
 }
 
 resource "aws_db_instance" "this" {
-  identifier = var.db_name
-  allocated_storage = 20
-  engine = "postgres"
-  instance_class = "db.t3.micro"
-  db_name = var.db_name
-  username = "admin_user"
-  password = "password" # Need to put this into env var or vault
-  db_subnet_group_name = aws_db_subnet_group.this.name
+  identifier             = var.db_name
+  allocated_storage      = 20
+  engine                 = "postgres"
+  instance_class         = "db.t3.micro"
+  db_name                = var.db_name
+  username               = "admin_user"
+  password               = "password" # Need to put this into env var or vault
+  db_subnet_group_name   = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.rds.id]
-  skip_final_snapshot = true
+  skip_final_snapshot    = true
 }
 
 output "address" {

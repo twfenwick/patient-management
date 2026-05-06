@@ -40,7 +40,7 @@ resource "aws_ecs_task_definition" "this" {
   execution_role_arn       = var.execution_role_arn
 
   container_definitions = jsonencode([{
-    name  = var.service_name
+    name = var.service_name
     # 3. Update image references in modules/fargate/main.tf
     image = "${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/${var.image_name}:latest"
     # image = var.image_name

@@ -25,10 +25,10 @@ resource "aws_security_group" "service" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "service" {
-  security_group_id = aws_security_group.service.id
-  from_port         = 4004
-  to_port           = 4004
-  ip_protocol       = "tcp"
+  security_group_id            = aws_security_group.service.id
+  from_port                    = 4004
+  to_port                      = 4004
+  ip_protocol                  = "tcp"
   referenced_security_group_id = aws_security_group.alb.id
 }
 
@@ -86,10 +86,9 @@ resource "aws_ecs_task_definition" "this" {
   execution_role_arn       = var.execution_role_arn
 
   container_definitions = jsonencode([{
-    name  = "api-gateway"
-    # 3. Update image references in modules/fargate/main.tf
+    name = "api-gateway"
+    # Also, update image references in modules/fargate/main.tf
     image = "${data.aws_caller_identity.current.account_id}.dkr.ecr.us-east-1.amazonaws.com/api-gateway:latest"
-    # image = "api-gateway"
     portMappings = [{
       containerPort = 4004
       hostPort      = 4004

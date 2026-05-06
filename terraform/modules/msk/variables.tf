@@ -1,6 +1,6 @@
 variable "create_msk" {
   type    = bool
-  default = true  # skip for localstack
+  default = true # skip for localstack
 }
 
 variable "private_subnets" {
