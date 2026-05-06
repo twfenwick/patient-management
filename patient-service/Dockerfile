@@ -12,7 +12,7 @@ COPY src ./src
 
 RUN mvn clean package
 
-FROM eclipse-temurin:25-jdk as runner
+FROM eclipse-temurin:25-jdk AS runner
 
 WORKDIR /app
 

@@ -35,6 +35,8 @@ public class LocalStack extends Stack {
 
         DatabaseInstance patientServiceDb = createDatabaseInstance("PatientServiceDB", "patient-service-db");
 
+        // HC is for other services to know when db is running and ready to accept connections,
+        // but also will tell other services if the db is in a bad state.
         CfnHealthCheck authDbHealthCheck = createDbHealthCheck(authServiceDb, "AuthServiceDBHealthCheck");
         CfnHealthCheck patientDbHealthCheck = createDbHealthCheck(patientServiceDb, "PatientServiceDBHealthCheck");
 
@@ -131,7 +133,7 @@ public class LocalStack extends Stack {
     private CfnCluster createMskCluster() {
         return CfnCluster.Builder.create(this, "MskCluster")
                 .clusterName("kafka-cluster")
-                .kafkaVersion("3.7.x")
+                .kafkaVersion("3.7.x") // localstack service requires wildcard for the patch version
                 .numberOfBrokerNodes(2)
                 .brokerNodeGroupInfo(CfnCluster.BrokerNodeGroupInfoProperty.builder()
                         .instanceType("kafka.m5.xlarge")
